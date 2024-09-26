@@ -11,7 +11,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-const url = "root:De$boca10@tcp(localhost:3306)/taller6"
+const url = "usvj5nbwbut2aelv:dTrmrTkkgrVcPdbCVqED@tcp(bdpxavpfy7zbuqwpfszz-mysql.services.clever-cloud.com:3306)/bdpxavpfy7zbuqwpfszz"
 
 //ruta de mi base, usuario y contraseña, + lo que sigue (localhost:3306 - es donde esta el servidor sql -) y luego el nombre de la base
 
