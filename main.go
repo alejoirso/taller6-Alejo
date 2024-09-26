@@ -40,5 +40,5 @@ func main() {
 	}
 
 	// Arrancamos el servidor en el puerto 8080
-	servidor.Run("localhost:8080")
+	servidor.Run("0.0.0.0:8080")
 }
