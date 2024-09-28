@@ -22,7 +22,8 @@ func GenerarToken(id_usuario uint) (string, error) {
 	reclamos := Reclamos{
 		Id: id_usuario,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 20)), // El token expira en 20 min
+			//ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 20)), // El token expira en 20 min
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24 * 7)), // El token expira en 1 semana
 		},
 	}
 
