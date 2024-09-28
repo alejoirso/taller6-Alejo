@@ -175,7 +175,6 @@ func ObtenerUsuarioPorID(c *gin.Context, id int) {
 
 // ActualizarUsuario maneja la actualización de un usuario
 func ActualizarUsuario(c *gin.Context) {
-	var creadoEn []uint8 // Cambiamos el tipo para recibir el valor como un []uint8
 	// Verificar si es administrador
 	esAdmin, existe := c.Get("es_admin")
 	if !existe {
@@ -213,7 +212,7 @@ func ActualizarUsuario(c *gin.Context) {
 		return
 	}
 
-	// Realizamos la actualización en la base de datos
+	// Realizamos la actualización en la base de datos sin modificar el campo creado_en
 	consulta := `UPDATE usuarios SET nombre_usuario = ?, correo = ?, contrasena = ? WHERE id = ?`
 	_, err = base_datos.BD.Exec(consulta, datosUsuario.NombreUsuario, datosUsuario.Correo, datosUsuario.Contrasena, idInt)
 	if err != nil {
@@ -229,16 +228,6 @@ func ActualizarUsuario(c *gin.Context) {
 	if err != nil {
 		log.Println("Error al obtener el usuario actualizado:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener el usuario actualizado"})
-		return
-	}
-
-	// Convertir []uint8 a string y luego a time.Time
-	creadoEnStr := string(creadoEn)
-	// Convertimos la cadena a time.Time porque en uint rompia
-	usuarioActualizado.CreadoEn, err = time.Parse("2006-01-02 15:04:05", creadoEnStr)
-	if err != nil {
-		log.Println("Error al convertir la fecha:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al procesar la fecha de creación"})
 		return
 	}
 
