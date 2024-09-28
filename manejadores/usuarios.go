@@ -221,8 +221,18 @@ func ActualizarUsuario(c *gin.Context) {
 		return
 	}
 
+	// Ahora obtenemos los datos completos del usuario actualizado
+	var usuarioActualizado modelos.Usuario
+	consulta = `SELECT id, nombre_usuario, correo, creado_en FROM usuarios WHERE id = ?`
+	err = base_datos.BD.QueryRow(consulta, idInt).Scan(&usuarioActualizado.ID, &usuarioActualizado.NombreUsuario, &usuarioActualizado.Correo, &usuarioActualizado.CreadoEn)
+	if err != nil {
+		log.Println("Error al obtener el usuario actualizado:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener el usuario actualizado"})
+		return
+	}
+
 	// Devolvemos el usuario actualizado (sin la contraseña)
-	c.JSON(http.StatusOK, datosUsuario)
+	c.JSON(http.StatusOK, usuarioActualizado)
 }
 
 // EliminarUsuario borra un usuario por su ID
