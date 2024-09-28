@@ -212,7 +212,7 @@ func ActualizarUsuario(c *gin.Context) {
 		return
 	}
 
-	// Realizamos la actualización en la base de datos sin modificar el campo creado_en
+	// Actualización en la base de datos (sin modificar creado_en)
 	consulta := `UPDATE usuarios SET nombre_usuario = ?, correo = ?, contrasena = ? WHERE id = ?`
 	_, err = base_datos.BD.Exec(consulta, datosUsuario.NombreUsuario, datosUsuario.Correo, datosUsuario.Contrasena, idInt)
 	if err != nil {
@@ -221,7 +221,7 @@ func ActualizarUsuario(c *gin.Context) {
 		return
 	}
 
-	// Ahora obtenemos los datos completos del usuario actualizado
+	// Obtenemos los datos completos del usuario actualizado (sin cambiar la fecha de creación)
 	var usuarioActualizado modelos.Usuario
 	consulta = `SELECT id, nombre_usuario, correo, creado_en FROM usuarios WHERE id = ?`
 	err = base_datos.BD.QueryRow(consulta, idInt).Scan(&usuarioActualizado.ID, &usuarioActualizado.NombreUsuario, &usuarioActualizado.Correo, &usuarioActualizado.CreadoEn)
