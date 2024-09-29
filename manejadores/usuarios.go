@@ -224,10 +224,21 @@ func ActualizarUsuario(c *gin.Context) {
 	// Obtenemos los datos completos del usuario actualizado (sin cambiar la fecha de creación)
 	var usuarioActualizado modelos.Usuario
 	consulta = `SELECT id, nombre_usuario, correo, creado_en FROM usuarios WHERE id = ?`
-	err = base_datos.BD.QueryRow(consulta, idInt).Scan(&usuarioActualizado.ID, &usuarioActualizado.NombreUsuario, &usuarioActualizado.Correo, &usuarioActualizado.CreadoEn)
+
+	// Usamos un tipo diferente para escanear `creado_en`
+	var creadoEn []byte // Cambiamos a []byte para evitar el error
+	err = base_datos.BD.QueryRow(consulta, idInt).Scan(&usuarioActualizado.ID, &usuarioActualizado.NombreUsuario, &usuarioActualizado.Correo, &creadoEn)
 	if err != nil {
 		log.Println("Error al obtener el usuario actualizado:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener el usuario actualizado"})
+		return
+	}
+
+	// Convertimos `creadoEn` a time.Time
+	usuarioActualizado.CreadoEn, err = time.Parse("2006-01-02 15:04:05", string(creadoEn))
+	if err != nil {
+		log.Println("Error al convertir la fecha:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al procesar la fecha de creación"})
 		return
 	}
 
