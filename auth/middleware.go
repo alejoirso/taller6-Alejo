@@ -9,37 +9,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RequiereAutenticacion es un middleware que verifica que el usuario tenga un token válido y maneja CORS
+// RequiereAutenticacion es un middleware que verifica que el usuario tenga un token válido
 func RequiereAutenticacion() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Lista de orígenes permitidos
-		originsPermitidos := []string{
-			"http://localhost:5173",
-			"http://localhost:5174",
-		}
-
-		// Obtenemos el origen de la solicitud
-		origin := c.Request.Header.Get("Origin")
-
-		// Verificamos si el origen está en la lista de permitidos
-		for _, origenPermitido := range originsPermitidos {
-			if origin == origenPermitido {
-				c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
-				break
-			}
-		}
-
-		// Configuración de CORS
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-
-		// Manejo del preflight (opciones)
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(http.StatusOK)
-			return
-		}
-
 		// Obtenemos el token del header Authorization
 		tokenString := c.GetHeader("Authorization")
 
@@ -80,7 +52,7 @@ func RequiereAutenticacion() gin.HandlerFunc {
 		// Verificamos si el usuario es administrador (ID 1)
 		if usuario.Id == 1 {
 			log.Println("Acceso otorgado al usuario administrador")
-			c.Set("es_admin", true) // Guardamos una marca en el contexto de que SI es admin
+			c.Set("es_admin", true) // Guardamos una marca en el contexto de que es admin
 		} else {
 			c.Set("es_admin", false)
 		}

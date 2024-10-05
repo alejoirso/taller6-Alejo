@@ -4,6 +4,7 @@ import (
 	"taller6/auth"
 	"taller6/base_datos"
 	"taller6/manejadores"
+	"taller6/middlewares"
 	"taller6/modelos"
 
 	"github.com/gin-gonic/gin"
@@ -16,11 +17,14 @@ func main() {
 
 	// Creamos la tabla "usuarios" si no existe
 	base_datos.CrearTabla(modelos.UsuariosSchema, "usuarios")
-	//Creamos el usuario "admin" si no existe
+	// Creamos el usuario "admin" si no existe
 	base_datos.CrearUsuarioAdmin()
 
 	// Creamos la instancia del servidor de Gin
 	servidor := gin.Default()
+
+	// Aplicar el middleware de CORS a todas las rutas
+	servidor.Use(middlewares.CORS())
 
 	// Definimos las rutas para el CRUD de usuarios
 	servidor.POST("/usuarios", manejadores.CrearUsuario) // Ruta pública para crear usuario (sin autenticación)
