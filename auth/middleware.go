@@ -12,6 +12,18 @@ import (
 // RequiereAutenticacion es un middleware que verifica que el usuario tenga un token válido
 func RequiereAutenticacion() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// Configuración de CORS
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173") // Cambia el dominio si es necesario
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+
+		// Manejo del preflight (opciones)
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusOK)
+			return
+		}
+
 		// Obtenemos el token del header Authorization
 		tokenString := c.GetHeader("Authorization")
 
