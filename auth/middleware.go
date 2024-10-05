@@ -12,9 +12,24 @@ import (
 // RequiereAutenticacion es un middleware que verifica que el usuario tenga un token válido y maneja CORS
 func RequiereAutenticacion() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// Lista de orígenes permitidos
+		originsPermitidos := []string{
+			"http://localhost:5173",
+			"http://localhost:5174",
+		}
+
+		// Obtenemos el origen de la solicitud
+		origin := c.Request.Header.Get("Origin")
+
+		// Verificamos si el origen está en la lista de permitidos
+		for _, origenPermitido := range originsPermitidos {
+			if origin == origenPermitido {
+				c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+				break
+			}
+		}
+
 		// Configuración de CORS
-		// Actualizar 'Access-Control-Allow-Origin' para usar un origen específico en lugar de "*"
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:5174") // Cambia el comodín a tu frontend
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
