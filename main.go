@@ -4,7 +4,6 @@ import (
 	"taller6/auth"
 	"taller6/base_datos"
 	"taller6/manejadores"
-	"taller6/middlewares"
 	"taller6/modelos"
 
 	"github.com/gin-gonic/gin"
@@ -24,7 +23,7 @@ func main() {
 	servidor := gin.Default()
 
 	// Aplicar el middleware de CORS a todas las rutas
-	servidor.Use(middlewares.CORS())
+	servidor.Use(auth.CORSMiddleware())
 
 	// Definimos las rutas para el CRUD de usuarios
 	servidor.POST("/usuarios", manejadores.CrearUsuario) // Ruta pública para crear usuario (sin autenticación)
