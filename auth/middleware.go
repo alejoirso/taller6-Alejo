@@ -9,11 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RequiereAutenticacion es un middleware que verifica que el usuario tenga un token válido
+// RequiereAutenticacion es un middleware que verifica que el usuario tenga un token válido y maneja CORS
 func RequiereAutenticacion() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Configuración de CORS
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173") // Cambia el dominio si es necesario
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*") // Permitir cualquier origen
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -72,3 +72,4 @@ func RequiereAutenticacion() gin.HandlerFunc {
 		c.Next() // Continuamos la ejecución si el token es válido
 	}
 }
+
