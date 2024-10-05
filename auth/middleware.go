@@ -13,7 +13,8 @@ import (
 func RequiereAutenticacion() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Configuración de CORS
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*") // Permitir cualquier origen
+		// Actualizar 'Access-Control-Allow-Origin' para usar un origen específico en lugar de "*"
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:5174") // Cambia el comodín a tu frontend
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -72,4 +73,3 @@ func RequiereAutenticacion() gin.HandlerFunc {
 		c.Next() // Continuamos la ejecución si el token es válido
 	}
 }
-
