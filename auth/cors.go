@@ -12,7 +12,8 @@ func CORSMiddleware() gin.HandlerFunc {
 		// Lista de orígenes permitidos
 		originsPermitidos := []string{
 			"http://localhost:5173",
-			"http://localhost:5174",
+			"http://localhost:5174"
+			"https://unique-macaron-b9d6a3.netlify.app/",
 		}
 
 		// Obtenemos el origen de la solicitud
