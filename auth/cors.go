@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// CORS es un middleware que configura los encabezados de CORS
-func CORS() gin.HandlerFunc {
+// CORSMiddleware configura los encabezados de CORS
+func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Lista de orígenes permitidos
 		originsPermitidos := []string{
@@ -42,4 +42,3 @@ func CORS() gin.HandlerFunc {
 		c.Next()
 	}
 }
-
