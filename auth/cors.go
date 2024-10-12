@@ -6,14 +6,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// CORSMiddleware configura los encabezados de CORS
-func CORSMiddleware() gin.HandlerFunc {
+// CORS es un middleware que configura los encabezados de CORS
+func CORS() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Lista de orígenes permitidos
 		originsPermitidos := []string{
 			"http://localhost:5173",
 			"http://localhost:5174",
-			"https://unique-macaron-b9d6a3.netlify.app/",
+			"https://unique-macaron-b9d6a3.netlify.app",
 		}
 
 		// Obtenemos el origen de la solicitud
@@ -42,3 +42,4 @@ func CORSMiddleware() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
