@@ -15,6 +15,7 @@ func CORSMiddleware() gin.HandlerFunc {
 			"http://localhost:5174",
 			"https://unique-macaron-b9d6a3.netlify.app",
 			"http://localhost:3000",
+			"http://localhost:3001",
 		}
 
 		// Obtenemos el origen de la solicitud
