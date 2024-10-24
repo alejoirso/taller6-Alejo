@@ -9,6 +9,7 @@ import (
 )
 
 var claveJWT = []byte("irso2024") // Clave secreta para firmar los tokens
+const adminID = 1                 // Asumimos que el ID del admin es 1
 
 // Reclamos define lo que contendrá el token
 type Reclamos struct {
@@ -21,10 +22,11 @@ func GenerarToken(id_usuario uint) (string, error) {
 	// Definimos los reclamos del token (información que contendrá)
 	reclamos := Reclamos{
 		Id: id_usuario,
-		RegisteredClaims: jwt.RegisteredClaims{
-			//ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 20)), // El token expira en 20 min
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24 * 7)), // El token expira en 1 semana
-		},
+	}
+
+	// Si el usuario no es "admin", establecer tiempo de expiración
+	if id_usuario != adminID {
+		reclamos.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Hour * 24 * 7)) // El token expira en 1 semana
 	}
 
 	// Creamos el token con el método de firma HS256
