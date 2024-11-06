@@ -9,25 +9,10 @@ import (
 // CORSMiddleware configura los encabezados de CORS
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Lista de orígenes permitidos
-		originsPermitidos := []string{
-			"http://localhost:5173",
-			"http://localhost:5174",
-			"https://unique-macaron-b9d6a3.netlify.app",
-			"http://localhost:3000",
-			"http://localhost:3001",
-			"https://rotiserialatriada.netlify.app/",
-		}
-
-		// Obtenemos el origen de la solicitud
+		// Permitir el origen de la solicitud
 		origin := c.Request.Header.Get("Origin")
-
-		// Verificamos si el origen está en la lista de permitidos
-		for _, origenPermitido := range originsPermitidos {
-			if origin == origenPermitido {
-				c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
-				break
-			}
+		if origin != "" {
+			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
 		}
 
 		// Configuración de CORS
