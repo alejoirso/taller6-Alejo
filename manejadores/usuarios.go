@@ -16,7 +16,7 @@ import (
 
 // CrearUsuario maneja la creación de un nuevo usuario
 func CrearUsuario(c *gin.Context) {
-	var usuario modelos.Usuario
+	var usuario modelos.UsuarioConToken
 
 	// Validamos la entrada, es decir, valido que me envien usuario, correo y contraseña. Si me mandan otro campo, ROMPE (400 Bad Request)
 	if err := c.ShouldBindJSON(&usuario); err != nil {
@@ -24,43 +24,39 @@ func CrearUsuario(c *gin.Context) {
 		return
 	}
 
-	// *****************Encriptamos la contraseña antes de guardarla*************************
-	//[]byte(usuario.Contrasena): Convierte la contraseña en texto plano del usuario a un arreglo de bytes.
-	//bcrypt.DefaultCost: Es un valor que determina la complejidad del proceso de encriptación. DefaultCost es un nivel de seguridad predeterminado
+	// Encriptamos la contraseña antes de guardarla
 	contrasenaEncriptada, err := bcrypt.GenerateFromPassword([]byte(usuario.Contrasena), bcrypt.DefaultCost)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al encriptar la contraseña"})
-		//si pasa algo intentando encriptar la clave, ROMPE (500 Internal Server Error)
 		return
 	}
-
-	// Log propio para ver si va todo OK hasta aca
-	log.Printf("(CrearUsuario) Contraseña proporcionada: %s", usuario.Contrasena)
-	log.Printf("(CrearUsuario) La misma contraseña pero encriptada es: %s", contrasenaEncriptada)
-
-	usuario.Contrasena = string(contrasenaEncriptada) //********
-	//reemplaza la contraseña del objeto usuario con la misma contraseña pero encriptada y la convierte en un string
+	usuario.Contrasena = string(contrasenaEncriptada)
 	usuario.CreadoEn = time.Now() // Establecemos la fecha actual
 
 	// Insertamos el usuario en la base de datos
 	consulta := `INSERT INTO usuarios (nombre_usuario, correo, contrasena, creado_en) VALUES (?, ?, ?, ?)`
 	resultado, err := base_datos.BD.Exec(consulta, usuario.NombreUsuario, usuario.Correo, usuario.Contrasena, usuario.CreadoEn)
 	if err != nil {
-		log.Println("Error al insertar el usuario:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo crear el usuario, no logra guardarse en la base."})
-		//si pasa algo intentando guardar los datos en la base, ROMPE (500 Internal Server Error)
 		return
 	}
 
 	// Obtener el ID del usuario recién insertado
 	usuarioID, err := resultado.LastInsertId()
 	if err != nil {
-		log.Println("Error al obtener el ID del usuario:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo obtener el ID del usuario"})
 		return
 	}
-
 	usuario.ID = uint(usuarioID)
+
+	// Generar el token para el usuario
+	token, err := auth.GenerarToken(usuario.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo generar el token"})
+		return
+	}
+
+	usuario.Token = token
 
 	// Devolvemos el usuario creado (sin la contraseña)
 	c.JSON(http.StatusCreated, usuario)
