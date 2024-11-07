@@ -262,3 +262,48 @@ func EliminarUsuario(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"mensaje": "Usuario eliminado correctamente"})
 }
+
+// ObtenerUsuarios trae la lista de todos los usuarios
+func ObtenerUsuarios(c *gin.Context) {
+	var usuarios []modelos.Usuario
+	query := `SELECT id, nombre_usuario, correo, creado_en FROM usuarios`
+
+	// Ejecutar la consulta y recorrer las filas devueltas
+	rows, err := base_datos.BD.Query(query)
+	if err != nil {
+		log.Println("Error al ejecutar la consulta:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al consultar los usuarios"})
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var usuario modelos.Usuario
+		var creadoEn string // Para capturar la fecha como string
+
+		if err := rows.Scan(&usuario.ID, &usuario.NombreUsuario, &usuario.Correo, &creadoEn); err != nil {
+			log.Println("Error al escanear la fila:", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al procesar los usuarios"})
+			return
+		}
+
+		// Convertir el campo creadoEn a time.Time
+		usuario.CreadoEn, err = time.Parse("2006-01-02 15:04:05", creadoEn)
+		if err != nil {
+			log.Println("Error al convertir la fecha:", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al procesar la fecha de creación"})
+			return
+		}
+
+		usuarios = append(usuarios, usuario)
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Println("Error en las filas:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error en la consulta de usuarios"})
+		return
+	}
+
+	// Devolvemos la lista de usuarios
+	c.JSON(http.StatusOK, usuarios)
+}

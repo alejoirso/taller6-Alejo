@@ -40,6 +40,8 @@ func main() {
 		rutasProtegidas.GET("/usuarios/:id", manejadores.ObtenerUsuario)
 		rutasProtegidas.PUT("/usuarios/:id", manejadores.ActualizarUsuario)
 		rutasProtegidas.DELETE("/usuarios/:id", manejadores.EliminarUsuario)
+		rutasProtegidas.GET("/usuarios", manejadores.ObtenerUsuarios)
+
 	}
 
 	// Arrancamos el servidor en el puerto 8080
