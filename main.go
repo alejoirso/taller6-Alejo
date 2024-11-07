@@ -28,6 +28,7 @@ func main() {
 	// Definimos las rutas para el CRUD de usuarios
 	servidor.POST("/usuarios", manejadores.CrearUsuario) // Ruta pública para crear usuario (sin autenticación)
 	servidor.POST("/login", manejadores.Login)           // Ruta pública para login (sin autenticación)
+	servidor.GET("/usuarios", manejadores.ObtenerUsuarios)
 
 	// Grupo de rutas protegidas por el middleware de autenticación
 	rutasProtegidas := servidor.Group("/")
@@ -40,7 +41,7 @@ func main() {
 		rutasProtegidas.GET("/usuarios/:id", manejadores.ObtenerUsuario)
 		rutasProtegidas.PUT("/usuarios/:id", manejadores.ActualizarUsuario)
 		rutasProtegidas.DELETE("/usuarios/:id", manejadores.EliminarUsuario)
-		rutasProtegidas.GET("/usuarios", manejadores.ObtenerUsuarios)
+		//rutasProtegidas.GET("/usuarios", manejadores.ObtenerUsuarios)
 
 	}
 
