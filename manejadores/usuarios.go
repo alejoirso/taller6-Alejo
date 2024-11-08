@@ -109,7 +109,7 @@ func Login(c *gin.Context) {
 	}
 
 	// Enviamos el token al cliente
-	c.JSON(http.StatusOK, gin.H{"token": token})
+	c.JSON(http.StatusCreated, gin.H{"token": token}) //201
 
 }
 
@@ -260,7 +260,7 @@ func EliminarUsuario(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"mensaje": "Usuario eliminado correctamente"})
+	c.JSON(http.StatusNoContent, gin.H{"mensaje": "Usuario eliminado correctamente"})
 }
 
 // ObtenerUsuarios trae todos los usuarios de la base de datos sin validación de token
