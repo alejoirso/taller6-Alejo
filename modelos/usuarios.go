@@ -7,7 +7,7 @@ type Usuario struct {
 	ID            uint      `json:"id"`
 	NombreUsuario string    `json:"nombre_usuario"`
 	Correo        string    `json:"correo"`
-	Contrasena    string    `json:"contrasena"` // No mostramos la contraseña
+	Contrasena    string    `json:` // No mostramos la contraseña
 	CreadoEn      time.Time `json:"creado_en"`
 }
 
@@ -15,7 +15,7 @@ type UsuarioConToken struct {
 	ID            uint      `json:"id"`
 	NombreUsuario string    `json:"nombre_usuario"`
 	Correo        string    `json:"correo"`
-	Contrasena    string    `json:"contrasena"` // No mostramos la contraseña
+	Contrasena    string    `json:` // No mostramos la contraseña
 	CreadoEn      time.Time `json:"creado_en"`
 	Token         string    `json:"token"`
 }
