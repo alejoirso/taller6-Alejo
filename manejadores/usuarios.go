@@ -235,10 +235,14 @@ func ActualizarUsuario(c *gin.Context) {
 	consulta += " WHERE id = ?"
 	args = append(args, idInt)
 
+	// Log para verificar la consulta antes de ejecutarla
+	log.Printf("Consulta de actualización: %s, con parámetros: %v", consulta, args)
+
 	// Ejecutar la consulta
 	_, err = base_datos.BD.Exec(consulta, args...)
 	if err != nil {
-		log.Println("Error al actualizar el usuario:", err)
+		// Log del error para mayor detalle
+		log.Printf("Error al ejecutar la consulta de actualización: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo actualizar el usuario"})
 		return
 	}
