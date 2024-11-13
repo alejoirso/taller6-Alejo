@@ -58,8 +58,17 @@ func CrearUsuario(c *gin.Context) {
 
 	usuario.Token = token
 
+	// Crear la respuesta sin la contraseña
+	usuarioSinContrasena := modelos.UsuarioConToken{
+		ID:            usuario.ID,
+		NombreUsuario: usuario.NombreUsuario,
+		Correo:        usuario.Correo,
+		CreadoEn:      usuario.CreadoEn,
+		Token:         token,
+	}
+
 	// Devolvemos el usuario creado (sin la contraseña)
-	c.JSON(http.StatusCreated, usuario)
+	c.JSON(http.StatusCreated, usuarioSinContrasena)
 }
 
 // Login maneja la autenticación de un usuario
