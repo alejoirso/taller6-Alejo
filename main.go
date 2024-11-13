@@ -36,10 +36,10 @@ func main() {
 	{
 		// Ruta para obtener y actualizar el propio perfil
 		rutasProtegidas.GET("/me", manejadores.ObtenerUsuario)
-		rutasProtegidas.PUT("/me", manejadores.ActualizarUsuario)
+		rutasProtegidas.PATCH("/me", manejadores.ActualizarUsuario)
 		// Rutas solo accesibles por admin
 		rutasProtegidas.GET("/usuarios/:id", manejadores.ObtenerUsuario)
-		rutasProtegidas.PUT("/usuarios/:id", manejadores.ActualizarUsuario)
+		rutasProtegidas.PATCH("/usuarios/:id", manejadores.ActualizarUsuario)
 		rutasProtegidas.DELETE("/usuarios/:id", manejadores.EliminarUsuario)
 		//rutasProtegidas.GET("/usuarios", manejadores.ObtenerUsuarios)
 

@@ -171,75 +171,68 @@ func ObtenerUsuarioPorID(c *gin.Context, id int) {
 
 // ActualizarUsuario maneja la actualización de un usuario
 func ActualizarUsuario(c *gin.Context) {
-	// Verificar si es administrador
 	esAdmin, existe := c.Get("es_admin")
 	if !existe {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo verificar el tipo de usuario"})
 		return
 	}
 
-	// Validamos la entrada
+	// Obtener datos enviados por el cliente
 	var datosUsuario modelos.Usuario
 	if err := c.ShouldBindJSON(&datosUsuario); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Datos incorrectos"})
 		return
 	}
 
-	// Encriptamos la contraseña antes de guardarla
-	contrasenaEncriptada, err := bcrypt.GenerateFromPassword([]byte(datosUsuario.Contrasena), bcrypt.DefaultCost)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al encriptar la contraseña"})
-		return
-	}
-	datosUsuario.Contrasena = string(contrasenaEncriptada)
-
-	// Si es administrador, permite actualizar cualquier usuario, si no, solo su propio perfil
+	// Determinar ID según si es admin o no
 	var id string
 	if esAdmin.(bool) {
-		id = c.Param("id") // Actualiza el usuario basado en el ID proporcionado en los parámetros
+		id = c.Param("id")
 	} else {
-		id = c.GetString("id_usuario") // Actualiza solo su propio perfil
+		id = c.GetString("id_usuario")
 	}
 
-	// Convertir el ID a entero
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
 		return
 	}
 
-	// Actualización en la base de datos (sin modificar creado_en)
-	consulta := `UPDATE usuarios SET nombre_usuario = ?, correo = ?, contrasena = ? WHERE id = ?`
-	_, err = base_datos.BD.Exec(consulta, datosUsuario.NombreUsuario, datosUsuario.Correo, datosUsuario.Contrasena, idInt)
+	// Construir consulta de actualización solo con campos presentes
+	consulta := "UPDATE usuarios SET "
+	args := []interface{}{}
+
+	if datosUsuario.NombreUsuario != "" {
+		consulta += "nombre_usuario = ?, "
+		args = append(args, datosUsuario.NombreUsuario)
+	}
+	if datosUsuario.Correo != "" {
+		consulta += "correo = ?, "
+		args = append(args, datosUsuario.Correo)
+	}
+	if datosUsuario.Contrasena != "" {
+		contrasenaEncriptada, err := bcrypt.GenerateFromPassword([]byte(datosUsuario.Contrasena), bcrypt.DefaultCost)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al encriptar la contraseña"})
+			return
+		}
+		consulta += "contrasena = ?, "
+		args = append(args, string(contrasenaEncriptada))
+	}
+
+	// Eliminar la última coma y espacio
+	consulta = consulta[:len(consulta)-2]
+	consulta += " WHERE id = ?"
+	args = append(args, idInt)
+
+	_, err = base_datos.BD.Exec(consulta, args...)
 	if err != nil {
 		log.Println("Error al actualizar el usuario:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo actualizar el usuario"})
 		return
 	}
 
-	// Obtenemos los datos completos del usuario actualizado (sin cambiar la fecha de creación)
-	var usuarioActualizado modelos.Usuario
-	consulta = `SELECT id, nombre_usuario, correo, creado_en FROM usuarios WHERE id = ?`
-
-	// Usamos un tipo diferente para escanear `creado_en`
-	var creadoEn []byte // Cambiamos a []byte para evitar el error
-	err = base_datos.BD.QueryRow(consulta, idInt).Scan(&usuarioActualizado.ID, &usuarioActualizado.NombreUsuario, &usuarioActualizado.Correo, &creadoEn)
-	if err != nil {
-		log.Println("Error al obtener el usuario actualizado:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener el usuario actualizado"})
-		return
-	}
-
-	// Convertimos `creadoEn` a time.Time
-	usuarioActualizado.CreadoEn, err = time.Parse("2006-01-02 15:04:05", string(creadoEn))
-	if err != nil {
-		log.Println("Error al convertir la fecha:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al procesar la fecha de creación"})
-		return
-	}
-
-	// Devolvemos el usuario actualizado (sin la contraseña)
-	c.JSON(http.StatusOK, usuarioActualizado)
+	c.JSON(http.StatusNoContent, gin.H{"mensaje": "Usuario actualizado correctamente"})
 }
 
 // EliminarUsuario borra un usuario por su ID
