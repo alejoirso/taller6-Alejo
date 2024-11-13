@@ -2,6 +2,7 @@ package manejadores
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -234,6 +235,90 @@ func ActualizarUsuario(c *gin.Context) {
 	consulta += " WHERE id = ?"
 	args = append(args, idInt)
 
+	// Ejecutar la consulta
+	_, err = base_datos.BD.Exec(consulta, args...)
+	if err != nil {
+		log.Println("Error al actualizar el usuario:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo actualizar el usuario"})
+		return
+	}
+
+	// Recuperar los datos actualizados del usuario, excluyendo la contraseña
+	var usuarioActualizado modelos.UsuarioSinContrasena
+	consulta = "SELECT id, nombre_usuario, correo, creado_en FROM usuarios WHERE id = ?"
+	row := base_datos.BD.QueryRow(consulta, idInt)
+
+	// Intentar escanear los datos en el modelo UsuarioSinContrasena
+	if err := row.Scan(&usuarioActualizado.ID, &usuarioActualizado.NombreUsuario, &usuarioActualizado.Correo, &usuarioActualizado.CreadoEn); err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Usuario no encontrado"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Error al recuperar los datos del usuario: %v", err)})
+		}
+		return
+	}
+
+	// Devolver el usuario actualizado sin la contraseña
+	c.JSON(http.StatusOK, usuarioActualizado)
+}
+
+/* ******************************************************
+// ActualizarUsuario maneja la actualización de un usuario
+func ActualizarUsuario(c *gin.Context) {
+	esAdmin, existe := c.Get("es_admin")
+	if !existe {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo verificar el tipo de usuario"})
+		return
+	}
+
+	// Obtener datos enviados por el cliente
+	var datosUsuario modelos.Usuario
+	if err := c.ShouldBindJSON(&datosUsuario); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Datos incorrectos"})
+		return
+	}
+
+	// Determinar ID según si es admin o no
+	var id string
+	if esAdmin.(bool) {
+		id = c.Param("id")
+	} else {
+		id = c.GetString("id_usuario")
+	}
+
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		return
+	}
+
+	// Construir consulta de actualización solo con campos presentes
+	consulta := "UPDATE usuarios SET "
+	args := []interface{}{}
+
+	if datosUsuario.NombreUsuario != "" {
+		consulta += "nombre_usuario = ?, "
+		args = append(args, datosUsuario.NombreUsuario)
+	}
+	if datosUsuario.Correo != "" {
+		consulta += "correo = ?, "
+		args = append(args, datosUsuario.Correo)
+	}
+	if datosUsuario.Contrasena != "" {
+		contrasenaEncriptada, err := bcrypt.GenerateFromPassword([]byte(datosUsuario.Contrasena), bcrypt.DefaultCost)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al encriptar la contraseña"})
+			return
+		}
+		consulta += "contrasena = ?, "
+		args = append(args, string(contrasenaEncriptada))
+	}
+
+	// Eliminar la última coma y espacio
+	consulta = consulta[:len(consulta)-2]
+	consulta += " WHERE id = ?"
+	args = append(args, idInt)
+
 	_, err = base_datos.BD.Exec(consulta, args...)
 	if err != nil {
 		log.Println("Error al actualizar el usuario:", err)
@@ -243,6 +328,7 @@ func ActualizarUsuario(c *gin.Context) {
 
 	c.JSON(http.StatusNoContent, gin.H{"mensaje": "Usuario actualizado correctamente"})
 }
+*/
 
 // EliminarUsuario borra un usuario por su ID
 func EliminarUsuario(c *gin.Context) {
