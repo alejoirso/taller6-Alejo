@@ -248,8 +248,8 @@ func ActualizarUsuario(c *gin.Context) {
 	consulta = "SELECT id, nombre_usuario, correo, creado_en FROM usuarios WHERE id = ?"
 	row := base_datos.BD.QueryRow(consulta, idInt)
 
-	// Utilizar sql.NullTime para manejar la conversión de la fecha
-	var creadoEn sql.NullTime
+	// Utilizar sql.NullString para manejar la fecha como string
+	var creadoEn []byte
 	if err := row.Scan(&usuarioActualizado.ID, &usuarioActualizado.NombreUsuario, &usuarioActualizado.Correo, &creadoEn); err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Usuario no encontrado"})
@@ -259,10 +259,14 @@ func ActualizarUsuario(c *gin.Context) {
 		return
 	}
 
-	// Verificar si la fecha es válida y asignarla a la respuesta
-	if creadoEn.Valid {
-		usuarioActualizado.CreadoEn = creadoEn.Time
+	// Convertir la fecha de []byte a time.Time
+	parsedDate, err := time.Parse("2006-01-02 15:04:05", string(creadoEn))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al parsear la fecha de creación"})
+		return
 	}
+
+	usuarioActualizado.CreadoEn = parsedDate
 
 	// Devolver el usuario actualizado sin la contraseña
 	c.JSON(http.StatusOK, usuarioActualizado)
