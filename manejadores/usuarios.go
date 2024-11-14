@@ -19,9 +19,22 @@ import (
 func CrearUsuario(c *gin.Context) {
 	var usuario modelos.UsuarioConToken
 
-	// Validamos la entrada, es decir, valido que me envien usuario, correo y contraseña. Si me mandan otro campo, ROMPE (400 Bad Request)
+	// Validamos la entrada
 	if err := c.ShouldBindJSON(&usuario); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Datos incorrectos"})
+		return
+	}
+
+	// Verificar si el usuario o correo ya existen
+	var existeUsuario int
+	consultaVerificacion := `SELECT COUNT(*) FROM usuarios WHERE nombre_usuario = ? OR correo = ?`
+	err := base_datos.BD.QueryRow(consultaVerificacion, usuario.NombreUsuario, usuario.Correo).Scan(&existeUsuario)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al verificar la existencia del usuario"})
+		return
+	}
+	if existeUsuario > 0 {
+		c.JSON(http.StatusConflict, gin.H{"error": "El usuario ya existe."})
 		return
 	}
 
@@ -32,7 +45,7 @@ func CrearUsuario(c *gin.Context) {
 		return
 	}
 	usuario.Contrasena = string(contrasenaEncriptada)
-	usuario.CreadoEn = time.Now() // Establecemos la fecha actual
+	usuario.CreadoEn = time.Now()
 
 	// Insertamos el usuario en la base de datos
 	consulta := `INSERT INTO usuarios (nombre_usuario, correo, contrasena, creado_en) VALUES (?, ?, ?, ?)`
